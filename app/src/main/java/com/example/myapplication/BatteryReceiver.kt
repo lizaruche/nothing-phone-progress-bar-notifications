@@ -28,7 +28,12 @@ class BatteryReceiver(val glyphController: GlyphController) : BroadcastReceiver(
             Log.d(TAG, "Battery level: changed")
             Log.d(TAG, "Battery level: $batteryPct%")
             batteryPct = newBatteryPct
-            glyphController.toggleProgressPeriod(batteryPct.toInt(), 20_000)
+//            displayBatteryOnGlyphs()
         }
+    }
+
+    fun displayBatteryOnGlyphs(period: Long = 5_000) {
+        Log.d(TAG, "Display: $batteryPct%")
+        glyphController.toggleProgressPeriod(batteryPct.toInt(), 5_000)
     }
 }

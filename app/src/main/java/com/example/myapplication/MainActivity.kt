@@ -31,11 +31,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MyApplicationTheme {
-                ServiceControlUI()
-            }
-        }
+//        setContent {
+//            MyApplicationTheme {
+//                ServiceControlUI()
+//            }
+//        }
 //        enableEdgeToEdge()
 //        checkNotificationPermission()
 //        startForegroundService(Intent(this, BatteryService::class.java))
@@ -64,8 +64,8 @@ class MainActivity : ComponentActivity() {
 //                }
 //            }
 //        }
-//        startForegroundService(Intent(this, BatteryService::class.java))
-//        finish()
+        startForegroundService(Intent(this, BatteryService::class.java))
+        finish()
     //
 //        glyphController = GlyphController(this)
 //        batteryController = BatteryController(this)
