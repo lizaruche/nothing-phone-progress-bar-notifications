@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import android.util.Log
+import kotlinx.coroutines.Delay
 
 class BatteryReceiver(val glyphController: GlyphController) : BroadcastReceiver() {
 
@@ -32,8 +33,8 @@ class BatteryReceiver(val glyphController: GlyphController) : BroadcastReceiver(
         }
     }
 
-    fun displayBatteryOnGlyphs(period: Long = 5_000) {
+    fun displayBatteryOnGlyphs(period: Long = 5_000, delay: Long = 0) {
         Log.d(TAG, "Display: $batteryPct%")
-        glyphController.toggleProgressPeriod(batteryPct.toInt(), 5_000)
+        glyphController.toggleProgressPeriod(batteryPct.toInt(), period, delay)
     }
 }

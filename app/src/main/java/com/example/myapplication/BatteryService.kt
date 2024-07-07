@@ -73,7 +73,7 @@ class BatteryService : Service(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
             when (it.sensor.type) {
-                Sensor.TYPE_ACCELEROMETER -> handleAccelerometerEvent(it)
+//                Sensor.TYPE_ACCELEROMETER -> handleAccelerometerEvent(it)
                 Sensor.TYPE_PROXIMITY -> handleProximityEvent(it)
                 else -> {}
             }
@@ -86,10 +86,23 @@ class BatteryService : Service(), SensorEventListener {
         val newZ = event.values[2]
 
         if (isFaceDown && !block) {
-            val movementThreshold = 0.6
-            if (abs(abs(x) - abs(newX)) > movementThreshold || abs(abs(y) - abs(newY)) > movementThreshold || abs(abs(z) - abs(newZ)) > movementThreshold) {
+            val movementThresholdL = 2.0
+            val movementThresholdH = 6.0
+            if ((
+                    (abs(abs(x) - abs(newX)) < movementThresholdH) &&
+                            (abs(abs(x) - abs(newX)) > movementThresholdL )
+                    ) || (
+                    (abs(abs(x) - abs(newX)) < movementThresholdH) &&
+                            (abs(abs(x) - abs(newX)) > movementThresholdL ))) {
                 runBlocking {
                     GlobalScope.launch {
+//                        val xx = abs(abs(x) - abs(newX))
+//                        val yy = abs(abs(y) - abs(newY))
+//                        val zz = abs(abs(z) - abs(newZ))
+//                        Log.d(TAG, "x: $xx")
+//                        Log.d(TAG, "y: $yy")
+//                        Log.d(TAG, "z: $zz")
+//                        Log.d(TAG, "movementThreshold: $movementThreshold")
                         Log.d(TAG, "change state")
                         block = true
                         batteryReceiver.displayBatteryOnGlyphs(2_000)
@@ -107,7 +120,20 @@ class BatteryService : Service(), SensorEventListener {
 
 
     private fun handleProximityEvent(event: SensorEvent) {
-        isFaceDown = event.values[0] < (proximitySensor?.maximumRange ?: 0f)
+        val tmp = event.values[0] < (proximitySensor?.maximumRange ?: 0f)
+        if (tmp && !isFaceDown) {
+            batteryReceiver.displayBatteryOnGlyphs(4_000, 2_000)
+        }
+        isFaceDown = tmp
+//        val tmp = event.values[0] < (proximitySensor?.maximumRange ?: 0f)
+//        if (tmp) {
+//            runBlocking {
+//                GlobalScope.launch {
+//                    Thread.sleep(3_000)
+//                    isFaceDown = true
+//                }
+//            }
+//        }
     }
 
     override fun onBind(intent: Intent?): IBinder {

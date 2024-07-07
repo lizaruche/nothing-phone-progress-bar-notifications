@@ -56,7 +56,7 @@ class GlyphController(private val context: Context) {
         glyphManager.turnOff()
     }
 
-    fun toggleProgressPeriod(cur: Int = curProg, period: Long = 3_000) {
+    fun toggleProgressPeriod(cur: Int = curProg, period: Long = 3_000, delay: Long = 0) {
         if (cur !in 0 .. 100) {
             throw Exception("cur must be between 0 and 100. given $cur")
         }
@@ -76,6 +76,7 @@ class GlyphController(private val context: Context) {
 
         runBlocking {
             val job = GlobalScope.launch {
+                Thread.sleep(delay)
                 if (cur <= 20) {
                     glyphManager.toggle(frameE)
                 } else {
