@@ -1,72 +1,86 @@
-package com.example.myapplication
+package com.github.chagall.notificationlistenerexample
 
-import android.content.ComponentName
+import android.app.Notification
 import android.content.Intent
-import android.provider.ContactsContract
+import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import androidx.core.app.NotificationManagerCompat
-import java.util.Collections
-import androidx.lifecycle.ViewModelProvider
 
-class NotificationListener : NotificationListenerService() {
+/**
+ * MIT License
+ *
+ * Copyright (c) 2016 Fábio Alves Martins Pereira (Chagall)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+class NotificationListenerExampleService : NotificationListenerService() {
+    /*
+           These are the package names of the apps. for which we want to
+           listen the notifications
+        */
+    private var curKey: String? = null
 
     companion object {
-        private const val TAG = "NotificationListener"
-        private val notificationsWithProgressBar = mutableSetOf<String>()
-        var viewModel: NotificationsViewModel? = null
-
-        fun getNotifications(): Set<String> {
-            return notificationsWithProgressBar
-        }
+        private const val TAG = "NotificationListenerES"
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        Log.d(TAG, "NotificationListener created")
-        viewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-            .create(NotificationsViewModel::class.java)
+    private object ApplicationPackageNames {
+        const val YANDEX_GO_PACK_NAME: String = "com.example.myapplication"
     }
 
-
-//    private val notificationsWithProgressBar = Collections.synchronizedSet(mutableSetOf<String>())
-
-    override fun onListenerConnected() {
-        super.onListenerConnected()
-        Log.d(TAG, "Notification listener connected")
-    }
-
-    override fun onListenerDisconnected() {
-        super.onListenerDisconnected()
-        Log.d(TAG, "Notification listener disconnected")
+    override fun onBind(intent: Intent): IBinder? {
+        Log.i(TAG, "Service bind")
+        return super.onBind(intent)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        val notification = sbn.notification
-        // && notification.extras.containsKey(android.app.Notification.EXTRA_PROGRESS)
-        if (notification != null ) {
-            val key = sbn.key
-            notificationsWithProgressBar.add(key)
-            viewModel?.addNotification(key)
-            Log.d(TAG, "Added notification with progress bar: $key")
-            Log.d(TAG, "New set is: $notificationsWithProgressBar")
+        val notificationProgress = getNotificationProgress(sbn)
+        if (curKey.isNullOrBlank()) curKey = sbn.key
+        Log.d(TAG, "curkey: $curKey")
+
+        if (notificationProgress > 0 && curKey == sbn.key) {
+            Log.d(TAG, "notification progress: $notificationProgress")
+            val intent = Intent("com.github.chagall.notificationlistenerexample")
+            intent.putExtra("Notification Progress", notificationProgress)
+            sendBroadcast(intent)
+//            val intent = Intent("com.github.chagall.notificationlistenerexample")
+//            intent.putExtra("Notification Code", notificationProgress)
+//            sendBroadcast(intent)
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        val key = sbn.key
-        if (notificationsWithProgressBar.contains(key)) {
-            notificationsWithProgressBar.remove(key)
-            viewModel?.removeNotification(key)
-            Log.d(TAG, "Removed notification with progress bar: $key")
+        if (curKey == sbn.key) {
+            Log.d(TAG, "removing curKey: $curKey")
+            curKey = null
+            // turn off glyph
         }
     }
 
-    fun getNotificationsWithProgressBar(): Set<String> {
-        Log.d(TAG, "Set is: $notificationsWithProgressBar")
-        return synchronized(notificationsWithProgressBar) {
-            notificationsWithProgressBar.toSet()
+    private fun getNotificationProgress(sbn: StatusBarNotification): Int {
+        val packageName = sbn.packageName
+
+        return if (packageName == ApplicationPackageNames.YANDEX_GO_PACK_NAME
+            && sbn.notification.extras.getInt(Notification.EXTRA_PROGRESS) != 0) {
+            Math.round(
+                sbn.notification.extras.getInt(Notification.EXTRA_PROGRESS).toDouble()
+                        / sbn.notification.extras.getInt(Notification.EXTRA_PROGRESS_MAX)
+                        * 100).toInt()
+        } else {
+            -1
         }
     }
 }

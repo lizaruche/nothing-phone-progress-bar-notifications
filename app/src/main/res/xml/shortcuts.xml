@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="display_battery"
+        android:enabled="true"
+        android:icon="@drawable/ic_battery"
+        android:shortcutShortLabel="@string/display_battery_short"
+        android:shortcutLongLabel="@string/display_battery_long">
+        <intent
+            android:action="com.example.myapplication.DISPLAY_BATTERY_LEVEL"
+            android:targetPackage="com.example.myapplication"
+            android:targetClass="com.example.myapplication.ShortcutReceiver" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="turn_off_glyphs"
+        android:enabled="true"
+        android:icon="@drawable/ic_power"
+        android:shortcutShortLabel="@string/turn_off_glyphs_short"
+        android:shortcutLongLabel="@string/turn_off_glyphs_long">
+        <intent
+            android:action="com.example.myapplication.TURN_OFF_GLYPHS"
+            android:targetPackage="com.example.myapplication"
+            android:targetClass="com.example.myapplication.ShortcutReceiver" />
+    </shortcut>
+</shortcuts>

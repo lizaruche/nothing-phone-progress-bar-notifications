@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="compose_shortcut_short_label1">Display battery lvl</string>
+    <string name="compose_shortcut_long_label1">"Show battery lvl on Glyphs "</string>
+    <string name="compose_disabled_message1">disable</string>
+    <string name="display_battery_short">display battery</string>
+    <string name="display_battery_long">show current battery lvl on glyphs</string>
+    <string name="turn_off_glyphs_short">turn off glyphs</string>
+    <string name="turn_off_glyphs_long">turn off glyphs</string>
 </resources>

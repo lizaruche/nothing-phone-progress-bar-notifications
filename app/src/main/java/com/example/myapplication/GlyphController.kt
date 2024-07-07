@@ -3,11 +3,16 @@ package com.example.myapplication
 import android.content.ComponentName
 import android.content.Context
 import android.util.Log
+import com.example.myapplication.BatteryReceiver.Companion
 import com.nothing.ketchum.Common
 import com.nothing.ketchum.Glyph
 import com.nothing.ketchum.GlyphException
 import com.nothing.ketchum.GlyphFrame
 import com.nothing.ketchum.GlyphManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class GlyphController(private val context: Context) {
 
@@ -42,17 +47,51 @@ class GlyphController(private val context: Context) {
         } catch (e: GlyphException) {
             Log.e(TAG, e.message ?: "Unknown error")
         }
+        Log.d(TAG, "closing")
         glyphManager.unInit()
     }
 
     fun turnOffGlyph() {
+        Log.d(TAG, "Turn off glyphs")
         glyphManager.turnOff()
+    }
+
+    fun toggleProgressPeriod(cur: Int = curProg, period: Long = 3_000) {
+        if (cur !in 0 .. 100) {
+            throw Exception("cur must be between 0 and 100. given $cur")
+        }
+        Log.d(TAG, "Toggle progress $cur out of 100")
+
+        val frameE = glyphManager.glyphFrameBuilder
+            .buildChannel(Glyph.Code_20111.E1, 1_000)
+            .buildInterval(10)
+            .buildCycles(2).buildPeriod(3000)
+            .build()
+        val frameED = glyphManager.glyphFrameBuilder
+            .buildChannelE()
+            .buildChannelD()
+            .buildInterval(5)
+            .buildCycles(1).buildPeriod(3000)
+            .build()
+
+        runBlocking {
+            val job = GlobalScope.launch {
+                if (cur <= 20) {
+                    glyphManager.toggle(frameE)
+                } else {
+                    glyphManager.displayProgressAndToggle(frameED, cur - 20, false)
+                }
+                Thread.sleep(period)
+                glyphManager.turnOff()
+            }
+        }
     }
 
     fun toggleProgress(cur: Int = curProg) {
         if (cur !in 0 .. 100) {
             throw Exception("cur must be between 0 and 100. given $cur")
         }
+        Log.d(TAG, "Toggle progress $cur out of 100")
 
 
         val frameE = glyphManager.glyphFrameBuilder

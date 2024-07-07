@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-        tools:ignore="ProtectedPermissions" />
+<!--    <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"-->
+<!--        tools:ignore="ProtectedPermissions" />-->
     <uses-permission android:name="com.nothing.ketchum.permission.ENABLE"/>
 
     <application
@@ -18,6 +20,7 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
         <meta-data android:name="NothingKey" android:value="test"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -28,15 +31,41 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
-        <service
-            android:name=".NotificationListener"
-            android:exported="true"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+
+        <receiver android:name=".BatteryReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.service.notification.NotificationListenerService" />
+                <action android:name="android.intent.action.BATTERY_CHANGED" />
             </intent-filter>
-        </service>
+        </receiver>
+
+<!--        <activity-->
+<!--            android:exported="true"-->
+<!--            android:name=".BatteryActivity"-->
+<!--            android:theme="@style/Theme.MyApplication">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.VIEW" />-->
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+        <service
+            android:name=".BatteryService"
+            android:exported="false"
+            android:enabled="true"
+            android:foregroundServiceType="dataSync"/>
+<!--        <service-->
+<!--            android:name=".NotificationListener"-->
+<!--            android:exported="true"-->
+<!--            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.service.notification.NotificationListenerService" />-->
+<!--            </intent-filter>-->
+<!--        </service>-->
     </application>
 
 </manifest>
